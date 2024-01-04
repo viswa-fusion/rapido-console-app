@@ -37,7 +37,7 @@ internal object READ {
 
     fun getUser(username: String): AuthenticationResponse {
         query = "SELECT * FROM ${DBTables.users.name} WHERE username = '$username'"
-
+        val response: AuthenticationResponse
         try {
             val preparedStatement: PreparedStatement = connection.prepareStatement(query)
             val resultSet: ResultSet = preparedStatement.executeQuery()
@@ -47,10 +47,12 @@ internal object READ {
                 val userId = resultSet.getInt("id")
                 return AuthenticationResponse.UserLoggedIn(userId, user)
             }
+            return AuthenticationResponse.UserNotFound
         } catch (e: SQLException) {
-            e.printStackTrace()
+            response = AuthenticationResponse.UserNotFound
+            response.setResponseMessage(e.message)
+            return response
         }
-        return AuthenticationResponse.UserNotFound
     }
 
     private fun getUser(id: Int): User {
@@ -82,11 +84,17 @@ internal object READ {
             lateinit var userType: User
             if (resultSet.next()) {
                 if (finalTable == DBTables.drivers) {
-//                    val
-//                    userType = Driver(
-//                        response.user,
-//
-//                    )
+                    val license: License = getLicense(resultSet.getInt("license_id"))
+                    val bike: Bike = getBike(resultSet.getInt("bike_id"))
+                    userType = Driver(
+                        response.user.username,
+                        response.user.password,
+                        response.user.name,
+                        response.user.age,
+                        response.user.phone,
+                        license,
+                        bike
+                    )
                 } else if (finalTable == DBTables.passengers) {
                     val aadhaar: Aadhaar = getAadhaar(resultSet.getInt("aadhaar_id"))
                     userType = Passenger(
@@ -96,7 +104,7 @@ internal object READ {
                         response.user.age,
                         response.user.phone,
                         aadhaar,
-                        castToPreferredBike(resultSet.getString("preferred_vehicle_type"))!!
+                        castToBikeType(resultSet.getString("preferred_vehicle_type"))!!
                     )
                 }
                 return userType
@@ -155,7 +163,7 @@ internal object READ {
                 user.age,
                 user.phone,
                 aadhaar,
-                castToPreferredBike(resultSet.getString("preferred_vehicle_type"))!!
+                castToBikeType(resultSet.getString("preferred_vehicle_type"))!!
             )
         }
         throw throw Exception("0 row matched in $query")
@@ -218,7 +226,7 @@ internal object READ {
             return RcBook(
                 resultSet.getString("owner_name"),
                 resultSet.getString("model"),
-                resultSet.getString("bike_type"),
+                castToBikeType(resultSet.getString("bike_type"))!!,
                 resultSet.getString("bike_color"),
                 resultSet.getString("valid_from"),
                 resultSet.getString("valid_till"),
@@ -234,7 +242,7 @@ internal object READ {
         if (resultSet.next()) {
             return Ride(
                 getPassenger(resultSet.getInt("passenger_id")),
-                getDriver( resultSet.getInt("driver_id")),
+                getDriver(resultSet.getInt("driver_id")),
                 resultSet.getString("pickup_location"),
                 resultSet.getString("drop_location"),
                 resultSet.getString("start_time"),
@@ -279,6 +287,7 @@ internal object READ {
                 query = "SELECT * FROM ${DBTables.rides} WHERE driver_id ='$id'"
                 getMyRide(query)
             }
+
             else -> null
         }
     }

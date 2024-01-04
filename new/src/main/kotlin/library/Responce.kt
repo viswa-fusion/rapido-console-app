@@ -23,7 +23,7 @@ sealed class DBResponse(private val responseCode: Int, private val responseMessa
     }
 }
 
-sealed class AuthenticationResponse(private val responseCode: Int, private val responseMessage: String) : Response{
+sealed class AuthenticationResponse(private val responseCode: Int, private var responseMessage: String) : Response{
 
     data class UserLoggedIn(val userId: Int, val user: User) : AuthenticationResponse(200 , "Successfully logged in")
     object UserFound : AuthenticationResponse(200 , "user available")
@@ -37,6 +37,10 @@ sealed class AuthenticationResponse(private val responseCode: Int, private val r
 
     override fun getResponseMessage() : String{
         return responseMessage
+    }
+
+    fun setResponseMessage(message: String?){
+        if(message != null){ responseMessage = message }
     }
 }
 

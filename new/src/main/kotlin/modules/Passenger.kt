@@ -3,7 +3,7 @@ package modules
 import UI_Layer.BookingPage
 import database.DBServices
 import library.DBResponse
-import library.customEnum.PreferredBike
+import library.customEnum.*
 
 
 class Passenger(
@@ -13,7 +13,7 @@ class Passenger(
     age: Int,
     phone: Long,
     val aadhaar: Aadhaar,
-    var preferredVehicleType: PreferredBike
+    var preferredVehicleType: BikeType
 ) : User(username, password, name, age, phone) {
 
     fun bookRide(passengerId: Int) : DBResponse {

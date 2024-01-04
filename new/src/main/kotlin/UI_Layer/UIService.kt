@@ -7,6 +7,7 @@ import database.*
 import library.OutputHandler.colorCoatedMessage
 import modules.Driver
 import modules.Passenger
+import modules.User
 
 object UIService {
     fun signUp() {
@@ -17,74 +18,73 @@ object UIService {
             else -> DBResponse.SignupFailed
         }
         if (response.getResponse() == 200) {
-            displayResponse(response, TextColor.Green)
+            displayResponse(response, TextColor.GREEN)
             if (InputHandler.getString("enter 0 to login or press any key to exit") == "0") {
                 signIn()
-            } else appRunStatus = false
+            } else closeApp()
         } else {
             displayResponse(response, TextColor.RED)
-            appRunStatus = false
+            closeApp()
         }
     }
 
     fun signIn() {
         var dbResponse: DBResponse
-        when (val response = (SignInPage.displaySignInPage())) {
-            is AuthenticationResponse.UserLoggedIn -> {
-                when (val loggedUser = DBServices.getLoggedUser(response)) {
-                    is Passenger -> {
-                        println("welcome ${loggedUser.name}")
-                        val loggedUserid = DBServices.getTablePrimaryKey(DBTables.passengers, loggedUser)
-                        while(true){
-                            displayPassengerMainMenu()
-                            when (InputHandler.getInt(1, 4)) {
-                                1 -> {
-                                    dbResponse = loggedUser.bookRide(loggedUserid)
-                                    displayResponse(dbResponse, TextColor.Green)
-                                }
+        val loggedUser: User? = SignInPage.displaySignInPage()
+        if (loggedUser == null) closeApp()
+        else {
+            when (loggedUser) {
+                is Passenger -> {
+                    println("welcome ${loggedUser.name}")
+                    val loggedUserid = DBServices.getTablePrimaryKey(DBTables.passengers, loggedUser)
+                    while (true) {
+                        displayPassengerMainMenu()
+                        when (InputHandler.getInt(1, 4)) {
+                            1 -> {
+                                dbResponse = loggedUser.bookRide(loggedUserid)
+                                displayResponse(dbResponse, TextColor.GREEN)
+                            }
 
-                                2 -> loggedUser.displayMyRide(loggedUserid, DBTables.passengers)
+                            2 -> loggedUser.displayMyRide(loggedUserid, DBTables.passengers)
 
-                                else -> {
-                                    appRunStatus = false
-                                    break
-                                }
+                            else -> {
+                                closeApp()
+                                break
                             }
                         }
                     }
+                }
 
-                    is Driver -> {
-
-                    }
+                is Driver -> {
+                    println("Welcome ${loggedUser.name}")
                 }
             }
-
-            else -> displayResponse(response, TextColor.RED)
         }
     }
 
+
     fun displayMainMenu() {
-        println(
+        colorCoatedMessage(
             """1 -> Sign_Up
             |2 -> Sign_In
-            |3 -> Exit""".trimMargin("|")
+            |3 -> Exit""".trimMargin("|"), TextColor.PEACH
         )
     }
 
     private fun displaySelectUserMenu() {
-        println(
+        colorCoatedMessage(
             """1 -> Passenger
-            |2 -> Driver""".trimMargin("|")
+            |2 -> Driver""".trimMargin("|"), TextColor.PEACH
         )
     }
 
     private fun displayPassengerMainMenu() {
-        println(
+        colorCoatedMessage(
             """1 -> Book Ride
                 |2 -> My Ride
                 |3 -> View Profile
                 |4 -> Logout
-            """.trimMargin("|")
+            """.trimMargin("|"), TextColor.PEACH
         )
     }
 

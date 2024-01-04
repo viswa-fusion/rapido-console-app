@@ -2,9 +2,7 @@ package database
 
 import library.*
 import library.customEnum.*
-import modules.Aadhaar
-import modules.Ride
-import modules.User
+import modules.*
 import java.sql.Connection
 import java.sql.SQLException
 import java.sql.Statement
@@ -35,6 +33,33 @@ internal object CREATE {
         }
     }
 
+    fun insertPassenger(userId: Int, aadhaarId: Int, preferredVehicleType: BikeType){
+        query = "insert into ${DBTables.passengers.name} (`user_id`,`aadhaar_id`,`preferred_vehicle_type`)value(?,?,?)"
+        connection.prepareStatement(query).use {
+            it.setInt(1,userId)
+            it.setInt(2,aadhaarId)
+            it.setString(3,preferredVehicleType.toString())
+            val result = it.executeUpdate()
+            if (result == 0) {
+                throw SQLException("insert passenger failed, no rows affected.")
+            }
+        }
+    }
+
+    fun insertDriver(userId: Int, licenseId: Int, bikeId: Int): DBResponse {
+        query = "insert into ${DBTables.drivers.name} (`user_id`,`license_id`,`bike_id`) value(?,?,?)"
+        connection.prepareStatement(query).use {
+            it.setInt(1,userId)
+            it.setInt(2,licenseId)
+            it.setInt(3,bikeId)
+            val result = it.executeUpdate()
+            if (result == 0) {
+                return DBResponse.OperationUnsuccessful("unable to add driver into $query in insert ride function")
+            }
+            return DBResponse.SuccessfullyCreated
+        }
+    }
+
     fun insertAadhaar(aadhaar: Aadhaar) : Int{
         query = "insert into ${DBTables.AADHAAR.name} (`aadhaar_no`,`name`,`renewal_date`) value(?,?,?)"
         connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS).use{
@@ -54,15 +79,64 @@ internal object CREATE {
         }
     }
 
-    fun insertPassenger(userId: Int, aadhaarId: Int, preferredVehicleType: PreferredBike){
-        query = "insert into ${DBTables.passengers.name} (`user_id`,`aadhaar_id`,`preferred_vehicle_type`)value(?,?,?)"
-        connection.prepareStatement(query).use {
-            it.setInt(1,userId)
-            it.setInt(2,aadhaarId)
-            it.setString(3,preferredVehicleType.toString())
+    fun insertLicense(license: License): Int {
+        query = "insert into ${DBTables.LICENSE.name} (`license_no`,`valid_from`,`valid_till`,`type`)value(?,?,?,?)"
+        connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS).use {
+            it.setString(1,license.licenseNo)
+            it.setString(2,license.validFrom)
+            it.setString(3,license.validTill)
+            it.setString(4,license.type)
             val result = it.executeUpdate()
             if (result == 0) {
-                throw SQLException("insert passenger failed, no rows affected.")
+                throw SQLException("Insert Licence failed, no rows affected.")
+            }
+            val generatedKeys = it.generatedKeys
+            if (generatedKeys.next()) {
+                return generatedKeys.getInt(1)
+            } else {
+                throw SQLException("Insert License failed, no ID obtained.")
+            }
+        }
+    }
+
+    fun insertBike(bike: Bike): Int {
+        query = "insert into ${DBTables.BIKE.name} (`rc_book_id`,`used_year`)value(?,?)"
+        connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS).use {
+            val rcBookId: Int= insertRcBook(bike.rcBook)
+            it.setInt(1,rcBookId)
+            it.setInt(2,bike.usedYear)
+            val result = it.executeUpdate()
+            if (result == 0) {
+                throw SQLException("Insert Bike failed, no rows affected.")
+            }
+            val generatedKeys = it.generatedKeys
+            if (generatedKeys.next()) {
+                return generatedKeys.getInt(1)
+            } else {
+                throw SQLException("Insert Bike failed, no ID obtained.")
+            }
+        }
+    }
+
+    private fun insertRcBook(rcBook: RcBook): Int {
+        query = "insert into ${DBTables.RC_BOOK.name} (`owner_name`,`model`,`bike_type`,`bike_color`,`valid_from`,`valid_till`,`reg_no`)value(?,?,?,?,?,?,?)"
+        connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS).use {
+            it.setString(1,rcBook.ownerName)
+            it.setString(2,rcBook.model)
+            it.setString(3,rcBook.bikeType.toString())
+            it.setString(4,rcBook.bikeColor)
+            it.setString(5,rcBook.validFrom)
+            it.setString(6,rcBook.validTill)
+            it.setString(7,rcBook.regNo)
+            val result = it.executeUpdate()
+            if (result == 0) {
+                throw SQLException("Insert Bike failed, no rows affected.")
+            }
+            val generatedKeys = it.generatedKeys
+            if (generatedKeys.next()) {
+                return generatedKeys.getInt(1)
+            } else {
+                throw SQLException("Insert Bike failed, no ID obtained.")
             }
         }
     }
@@ -79,8 +153,7 @@ internal object CREATE {
             if (result == 0) {
                 return DBResponse.OperationUnsuccessful("unable to add $ride into ${DBTables.users.name} in insert ride function")
             }
+            return DBResponse.SuccessfullyCreated
         }
-        return DBResponse.SuccessfullyCreated
     }
-
 }

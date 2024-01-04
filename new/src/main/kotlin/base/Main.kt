@@ -1,10 +1,8 @@
 package base
 
 import UI_Layer.UIService
-import database.READ
 import library.*
-import library.customEnum.DBTables
-import modules.User
+import library.customEnum.TextColor
 
 var appRunStatus = true
 fun main() {
@@ -14,8 +12,13 @@ fun main() {
         when (InputHandler.getInt(1, 3)) {
             1 -> UIService.signUp()
             2 -> UIService.signIn()
-            3 -> appRunStatus = false
+            3 -> closeApp()
         }
     }
     appRunStatus = true
+}
+
+fun closeApp(){
+    appRunStatus = false
+    OutputHandler.colorCoatedMessage("thanks for visiting See you again \uD83D\uDE01", TextColor.GREEN)
 }
