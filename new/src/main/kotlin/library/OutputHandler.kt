@@ -1,6 +1,6 @@
 package library
 
-import library.customEnum.TextColor
+import library.customenum.TextColor
 
 object OutputHandler {
 

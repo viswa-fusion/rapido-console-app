@@ -1,11 +1,11 @@
 package library
 
-import UI_Layer.UIService
+import uilayer.UiService
 
 class UserAccess : PassengerAccess, DriverAccess{
 
     fun getMap(){
-        UIService.displayRideRotes()
+        UiService.displayRideRotes()
     }
 
     fun bookRide(){

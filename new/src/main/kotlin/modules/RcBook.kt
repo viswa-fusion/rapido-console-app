@@ -1,6 +1,6 @@
 package modules
 
-import library.customEnum.BikeType
+import library.customenum.BikeType
 
 data class RcBook(
     val ownerName: String,

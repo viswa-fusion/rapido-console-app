@@ -1,9 +1,9 @@
 package modules
 
-import UI_Layer.BookingPage
-import database.DBServices
+import uilayer.BookingPage
+import database.DbService
 import library.DBResponse
-import library.customEnum.*
+import library.customenum.*
 
 
 class Passenger(
@@ -17,7 +17,7 @@ class Passenger(
 ) : User(username, password, name, age, phone) {
 
     fun bookRide(passengerId: Int) : DBResponse {
-        return DBServices.createNewBooking(BookingPage.gatherRideData(), passengerId)
+        return DbService.createNewBooking(BookingPage.gatherRideData(), passengerId)
     }
 
     override fun toString(): String {

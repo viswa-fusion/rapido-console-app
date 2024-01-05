@@ -1,6 +1,6 @@
 package modules
 
-import library.customEnum.RideStatus
+import library.customenum.RideStatus
 
 data class Ride(
     val passenger: Passenger? = null,

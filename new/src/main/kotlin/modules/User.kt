@@ -1,7 +1,7 @@
 package modules
 
-import UI_Layer.UIService
-import library.customEnum.DBTables
+import uilayer.UiService
+import library.customenum.DbTables
 
 open class User(
     val username: String,
@@ -10,7 +10,7 @@ open class User(
     val age: Int,
     val phone: Long,
 ){
-    fun displayMyRide(id: Int, table: DBTables) {
-        UIService.displayMyRide(id, table)
+    fun displayMyRide(id: Int, table: DbTables) {
+        UiService.displayMyRide(id, table)
     }
 }

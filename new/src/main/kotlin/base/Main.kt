@@ -1,17 +1,19 @@
 package base
 
-import UI_Layer.UIService
+import backend.UtilityFunction
+import uilayer.UiService
 import library.*
-import library.customEnum.TextColor
+import library.customenum.TextColor
 
 var appRunStatus = true
 fun main() {
-    UIService.displayWelcomeMessage()
+    UtilityFunction.initializeRapidoMap()
+    UiService.displayWelcomeMessage()
     while (appRunStatus) {
-        UIService.displayMainMenu()
+        UiService.displayMainMenu()
         when (InputHandler.getInt(1, 3)) {
-            1 -> UIService.signUp()
-            2 -> UIService.signIn()
+            1 -> UiService.signUp()
+            2 -> UiService.signIn()
             3 -> closeApp()
         }
     }

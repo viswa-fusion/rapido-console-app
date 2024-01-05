@@ -1,16 +1,15 @@
 package base
 
-import UI_Layer.UIService
+import uilayer.UiService
 import library.*
-import library.customEnum.TextColor
 
 fun main() {
-    UIService.displayWelcomeMessage()
+    UiService.displayWelcomeMessage()
     while (appRunStatus) {
-        UIService.displayMainMenu()
+        UiService.displayMainMenu()
         when (InputHandler.getInt(1, 3)) {
-            1 -> UIService.signUp()
-            2 -> UIService.signIn()
+            1 -> UiService.signUp()
+            2 -> UiService.signIn()
             3 -> closeApp()
         }
     }

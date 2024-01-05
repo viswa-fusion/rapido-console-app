@@ -1,8 +1,8 @@
 package library
 
 import library.OutputHandler.colorCoatedMessage
-import library.customEnum.*
-import library.customEnum.TextColor
+import library.customenum.*
+import library.customenum.TextColor
 
 
 object InputHandler {
@@ -16,7 +16,7 @@ object InputHandler {
         println(message)
         do {
             num = readLine()?.toIntOrNull()
-        } while ((num == null || num !in min..max).also { if (it) colorCoatedMessage(retryMessage, TextColor.RED) })
+        } while ((num == null || (num !in min..max && num != -1)).also { if (it) colorCoatedMessage(retryMessage, TextColor.RED) })
         return num!!
     }
 
@@ -89,19 +89,24 @@ object InputHandler {
 
     fun getString(
         message: String,
-        retryMessage: String = "invalid input try again..!"
-    ): String {
+        retryMessage: String = "invalid input try again..!",
+        includeNull: Boolean = false
+    ): String? {
         var string: String?
         println(message)
-        do {
-            string = readLine()
-        } while ((string == null).also {
-                if (it) colorCoatedMessage(
-                    retryMessage,
-                    TextColor.RED
-                )
-            })
-        return string!!
+        return if(includeNull) {
+            readLine()
+        } else{
+            do {
+                string = readLine()
+            } while ((string == null).also {
+                    if (it) colorCoatedMessage(
+                        retryMessage,
+                        TextColor.RED
+                    )
+                })
+            string!!
+        }
     }
 
     fun getLong(size: Long, message: String = "enter long number", retryMessage: String = "Invalid Input..!"): Long {
@@ -121,7 +126,7 @@ object InputHandler {
     fun getVehicleType(message: String): BikeType {
         var preferredVehicleType: BikeType?
         do {
-            preferredVehicleType = when (getString(message).uppercase()) {
+            preferredVehicleType = when (getString(message)?.uppercase()) {
                 "SCOOTER" -> BikeType.SCOOTER
                 "CLASSIC" -> BikeType.CLASSIC
                 "SPORTS" -> BikeType.SPORTS
